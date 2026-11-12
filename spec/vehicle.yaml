@@ -1,0 +1,5 @@
+# Talon vehicle spec: single source of truth. M0 placeholder; sized in M1.
+schema: 1
+vehicle:
+  name: talon-1
+  stages: 2
