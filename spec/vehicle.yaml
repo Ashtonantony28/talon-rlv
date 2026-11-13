@@ -1,5 +1,77 @@
-# Talon vehicle spec: single source of truth. M0 placeholder; sized in M1.
-schema: 1
+# Talon vehicle spec: single source of truth (CLAUDE.md rule 3). SI units (ADR 0001).
+schema: 2
 vehicle:
   name: talon-1
-  stages: 2
+  mission:
+    payload_kg: 400.0              # to 500 km circular LEO
+    dv_to_orbit_mps: 9300.0        # ideal dv incl. gravity/drag/steering losses budget
+    booster_recovery_dv_mps: 1600.0  # boostback-lite + entry + landing burn (downrange barge)
+    booster_dv_min_mps: 2800.0     # staging floor: below this a T/W<1 upper stage pays large gravity
+                                   # losses that the fixed loss budget does not model (refined in M2)
+    liftoff_tw: 1.35
+    upper_stage_initial_tw: 0.75
+  diameter_m: 1.8
+  propellants:                     # LOX / liquid methane
+    mixture_ratio: 3.5             # O/F by mass
+    rho_ox: 1141.0
+    rho_fuel: 422.6
+    ullage_fraction: 0.05
+  engines:
+    booster:                       # gas-generator methalox, gimbaled centre + fixed outer
+      count: 5
+      thrust_sl_n: 60000.0
+      isp_sl_s: 298.0
+      isp_vac_s: 327.0
+      mass_kg: 95.0
+      throttle_min: 0.45
+      gimbal_max_deg: 6.0
+      exit_area_m2: 0.10           # for sea level / vacuum thrust correction
+      length_m: 1.10
+      exit_diameter_m: 0.36
+    upper:
+      count: 1
+      thrust_vac_n: 80000.0
+      isp_vac_s: 352.0
+      mass_kg: 150.0
+      length_m: 1.40
+      exit_diameter_m: 0.80
+  material:                        # Al-Li 2195 tank barrels and domes
+    name: AlLi-2195
+    rho: 2710.0
+    E: 76.0e+9
+    nu: 0.33
+    yield_pa: 590.0e+6
+    ultimate_pa: 625.0e+6
+  structures:
+    tank_pressure_pa: 3.0e+5        # ullage MEOP, both tanks
+    min_gauge_m: 1.2e-3
+    gauge_step_m: 1.0e-4           # walls rounded up to stock gauge
+    factor_of_safety: 1.4          # ultimate, applied to limit loads
+    design_max_q_pa: 38000.0       # verified against the trajectory in M2
+    design_alpha_maxq_deg: 4.0
+    max_axial_g: 6.0               # booster burnout with throttle-down limit
+    maxq_axial_g: 2.5              # axial load factor at max-q
+    cn_alpha_per_rad: 2.5          # whole-vehicle normal-force slope (refined by aero/ in M2)
+  layout:                          # CAD layout (cad/vehicle.py)
+    dome_aspect: 0.7071            # dome height / radius (2:1 ellipsoidal ~ 0.5; 0.707 = sqrt(2) dome)
+    booster_skirt_m: 1.80          # engine bay height below the fuel barrel
+    bay_gap_m: 0.15                # clearance between facing domes in an intertank
+    interstage_extra_m: 0.30       # interstage length beyond upper nozzle + dome
+    upper_fwd_skirt_extra_m: 0.20
+    payload_adapter_m: 0.50
+    payload_envelope: {diameter_m: 1.20, height_m: 1.20}
+    fairing: {cyl_m: 2.20, nose_m: 2.60, thickness_m: 0.004, rho: 1600.0}
+    nose_cp_fraction: 0.6667       # CP of a conical nose, fraction of nose length from tip
+    grid_fins: {count: 4, span_m: 0.60, chord_m: 0.50, depth_m: 0.08, web_m: 0.006, cells: 5, rho: 4430.0}
+    legs: {count: 4, length_m: 3.20, tube_d_m: 0.16, tube_t_m: 0.006, rho: 1600.0, foot_d_m: 0.45,
+           actuator_kg: 18.0}
+  lumped:                          # non-CAD masses per stage
+    booster_avionics_kg: 45.0
+    booster_landing_legs_kg: 0.0   # legs are modelled in CAD
+    booster_misc_fraction: 0.10    # plumbing, pressurant, wiring as fraction of CAD structure
+    upper_avionics_kg: 35.0
+    upper_misc_fraction: 0.12
+    fairing_kg: 0.0                # fairing modelled in CAD
+  sizing:
+    struct_fraction_guess: {booster: 0.08, upper: 0.10}
+    closure_tol: 0.005             # relative change in dry mass between iterations
