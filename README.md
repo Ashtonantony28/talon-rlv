@@ -8,9 +8,17 @@ run hardware-in-the-loop on the Vortex-V RISC-V core. Plan and milestones: [docs
 ## Status
 - **M0 (6-DOF core)**: quaternion rigid body with variable mass and inertia, RK4, point-mass/J2/uniform
   gravity, US Standard Atmosphere 1976. Analytic regression suite.
+- **M1 (vehicle design)**: two-stage sizing with a booster recovery reserve, thin-wall structural sizing
+  (pressure, axial, max-q bending, SP-8007 buckling), parametric build123d CAD, and a closure loop that
+  re-sizes the vehicle on the dry mass measured from the CAD solids. Summary:
+  [docs/design/M1-design.md](docs/design/M1-design.md).
+
+![Talon-1 cutaway](docs/design/talon1.png)
 
 ## Verify
 ```
 pip install -r requirements.txt
 pytest -q tests/
+python -m cad.build      # closes the design, writes build/ (STEP, STL, design.json) + docs/design/M1-design.md
+python -m cad.render     # docs/design/talon1.png
 ```
