@@ -82,12 +82,6 @@ def test_tank_volume_formula_matches_cad():
     assert np.isclose(cv.liquid_solid(R, h, 0.0, 0.0).volume, cv.tank_volume(R, h, 0.0), rtol=1e-9)
 
 
-@pytest.fixture(scope="module")
-def design():
-    from design import closure
-    return closure.close(SPEC)
-
-
 def test_design_closes_cad_dry_mass_within_2pct(design):
     for stg in ("booster", "upper"):
         sizing_dry = getattr(design.sizing, stg).dry

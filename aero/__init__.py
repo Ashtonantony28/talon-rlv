@@ -1,0 +1,1 @@
+"""Aerodynamic coefficient models."""

@@ -25,7 +25,6 @@ vehicle:
       mass_kg: 95.0
       throttle_min: 0.45
       gimbal_max_deg: 6.0
-      exit_area_m2: 0.10           # for sea level / vacuum thrust correction
       length_m: 1.10
       exit_diameter_m: 0.36
     upper:
@@ -33,6 +32,7 @@ vehicle:
       thrust_vac_n: 80000.0
       isp_vac_s: 352.0
       mass_kg: 150.0
+      throttle_min: 0.40
       length_m: 1.40
       exit_diameter_m: 0.80
   material:                        # Al-Li 2195 tank barrels and domes
@@ -52,6 +52,23 @@ vehicle:
     max_axial_g: 6.0               # booster burnout with throttle-down limit
     maxq_axial_g: 2.5              # axial load factor at max-q
     cn_alpha_per_rad: 2.5          # whole-vehicle normal-force slope (refined by aero/ in M2)
+  aero:                            # ascent configuration, reference area = body cross-section
+    mach:    [0.0, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2, 1.5, 2.0, 3.0, 4.0, 6.0, 10.0]
+    ca_on:   [0.30, 0.30, 0.32, 0.40, 0.55, 0.65, 0.62, 0.55, 0.45, 0.35, 0.30, 0.25, 0.22]
+    ca_base_off: 0.12              # extra base drag with engines off (coast)
+    cn_alpha_nose_per_rad: 2.0     # slender-body theory, any pointed nose
+  ascent:
+    launch_site: {lat_deg: 28.5, lon_deg: -80.6, alt_m: 0.0}
+    azimuth_deg: 90.0
+    target_apogee_km: 500.0
+    min_perigee_km: 180.0          # insertion orbit floor; circularised at apogee
+    vertical_rise_s: 8.0
+    kick_duration_s: 6.0
+    maxq_throttle: 0.75            # booster throttle setting through the max-q bucket
+    maxq_bucket_frac: 0.85         # throttle down when q exceeds this fraction of design max-q
+    staging_coast_s: 4.0
+    fairing_jettison_q_pa: 5.0     # dynamic pressure below which the fairing is dropped
+    dt_s: 0.1
   layout:                          # CAD layout (cad/vehicle.py)
     dome_aspect: 0.7071            # dome height / radius (2:1 ellipsoidal ~ 0.5; 0.707 = sqrt(2) dome)
     booster_skirt_m: 1.80          # engine bay height below the fuel barrel
