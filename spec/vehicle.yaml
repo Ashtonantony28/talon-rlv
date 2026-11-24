@@ -19,12 +19,12 @@ vehicle:
   engines:
     booster:                       # gas-generator methalox, gimbaled centre + fixed outer
       count: 5
-      thrust_sl_n: 60000.0
+      thrust_sl_n: 70000.0         # uprated from 60 kN after the detailed CAD raised booster dry mass
       isp_sl_s: 298.0
       isp_vac_s: 327.0
-      mass_kg: 95.0
+      mass_kg: 105.0
       throttle_min: 0.45
-      gimbal_max_deg: 6.0
+      gimbal_max_deg: 6.0          # centre engine only; outer four fixed
       length_m: 1.10
       exit_diameter_m: 0.36
     upper:
@@ -69,26 +69,42 @@ vehicle:
     staging_coast_s: 4.0
     fairing_jettison_q_pa: 5.0     # dynamic pressure below which the fairing is dropped
     dt_s: 0.1
-  layout:                          # CAD layout (cad/vehicle.py)
-    dome_aspect: 0.7071            # dome height / radius (2:1 ellipsoidal ~ 0.5; 0.707 = sqrt(2) dome)
+  layout:                          # CAD layout (cad/vehicle.py), z = 0 at the booster skirt base
+    dome_aspect: 0.7071            # dome height / radius (sqrt(2) dome)
     booster_skirt_m: 1.80          # engine bay height below the fuel barrel
     bay_gap_m: 0.15                # clearance between facing domes in an intertank
-    interstage_extra_m: 0.30       # interstage length beyond upper nozzle + dome
+    min_barrel_m: 0.10             # shortest tank barrel (a tank never collapses to two domes)
+    interstage_extra_m: 0.50       # interstage length beyond upper nozzle + dome (gimbal clearance)
     upper_fwd_skirt_extra_m: 0.20
     payload_adapter_m: 0.50
-    payload_envelope: {diameter_m: 1.20, height_m: 1.20}
-    fairing: {cyl_m: 2.20, nose_m: 2.60, thickness_m: 0.004, rho: 1600.0}
-    nose_cp_fraction: 0.6667       # CP of a conical nose, fraction of nose length from tip
-    grid_fins: {count: 4, span_m: 0.60, chord_m: 0.50, depth_m: 0.08, web_m: 0.006, cells: 5, rho: 4430.0}
-    legs: {count: 4, length_m: 3.20, tube_d_m: 0.16, tube_t_m: 0.006, rho: 1600.0, foot_d_m: 0.45,
-           actuator_kg: 18.0}
-  lumped:                          # non-CAD masses per stage
-    booster_avionics_kg: 45.0
-    booster_landing_legs_kg: 0.0   # legs are modelled in CAD
-    booster_misc_fraction: 0.10    # plumbing, pressurant, wiring as fraction of CAD structure
-    upper_avionics_kg: 35.0
-    upper_misc_fraction: 0.12
-    fairing_kg: 0.0                # fairing modelled in CAD
+    frame: {height_m: 0.030, depth_m: 0.040}          # internal ring frames in dry bays
+    engine_bay:
+      nozzle_below_skirt_m: 0.30   # nozzle exits protrude below the skirt base
+      ring_radius_frac: 0.62       # outer-engine ring radius / body radius
+      gimbal_block: {radius_m: 0.07, height_m: 0.10}
+      thrust_plate: {radius_m: 0.75, thickness_m: 0.012, lightening_hole_r_m: 0.11}
+      thrust_cone_top_m: 1.30      # thrust cone meets the skirt wall at this z
+      thrust_cone_t_m: 0.004
+      heat_shield: {thickness_m: 0.012, rho: 1600.0, clearance_m: 0.02}
+    upper_engine: {gimbal_max_deg: 5.0, mount_drop_m: 0.15, mount_t_m: 0.004}
+    downcomer: {radius_m: 0.075, wall_m: 0.003}
+    raceway: {azimuth_deg: 22.0, width_m: 0.12, height_m: 0.05, wall_m: 0.003, rho: 1600.0}
+    rcs: {count: 4, azimuth0_deg: 45.0, width_m: 0.16, height_m: 0.15, depth_m: 0.07}
+    payload: {bus_m: [0.80, 0.80, 0.90], panel_t_m: 0.03, dish_d_m: 0.50}
+    fairing: {cyl_m: 2.20, nose_m: 2.60, thickness_m: 0.004, rho: 1600.0, nose_radius_m: 0.08}
+    nose_cp_fraction: 0.6667       # CP of the nose, fraction of nose length from tip (conservative)
+    grid_fins: {count: 4, span_m: 0.60, width_m: 0.50, depth_m: 0.08, web_m: 0.006, cells: [6, 5],
+                rho: 4430.0, hinge_offset_m: 0.14, hinge_below_sep_m: 0.62, deploy_deg: 90.0,
+                housing: {height_m: 0.24, depth_m: 0.08, width_m: 0.36}}
+    legs: {count: 4, azimuth0_deg: 45.0, length_m: 2.80, hinge_z_m: 0.25, hinge_offset_m: 0.14,
+           main_d_m: 0.16, main_t_m: 0.006, side_d_m: 0.08, side_t_m: 0.003, side_spread_m: 0.28,
+           rho: 1600.0, pad_d_m: 0.36, pad_h_m: 0.05, pad_rho: 700.0, deploy_deg: 120.0,   # pad: Al honeycomb crush core
+           bracket: {height_m: 0.40, depth_m: 0.05, width_m: 0.70}}
+  lumped:                          # non-CAD masses per stage (kg), spread at the stage CoM
+    booster: {avionics: 45.0, leg_actuators_dampers: 72.0}
+    booster_misc_fraction: 0.06    # wiring, pressurant, small plumbing as fraction of CAD structure
+    upper: {avionics: 35.0}
+    upper_misc_fraction: 0.08
   sizing:
     struct_fraction_guess: {booster: 0.08, upper: 0.10}
     closure_tol: 0.005             # relative change in dry mass between iterations
