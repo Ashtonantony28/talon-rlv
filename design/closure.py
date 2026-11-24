@@ -35,13 +35,11 @@ def station_margins(spec, s, parts, info, props, thickness=None):
     """Required thickness and margin ratios for every barrel, over all load cases."""
     mat, S_ = spec["material"], spec["structures"]
     FS = S_["factor_of_safety"]
-    lump = spec["lumped"]
     z_top, z_sep = info["z_top"], info["z_sep"]
     x_cp = spec["layout"]["nose_cp_fraction"] * spec["layout"]["fairing"]["nose_m"]
     struct = {stg: sum(props[p.name][0] for p in parts if p.stage == stg and p.kind == "structure")
               for stg in ("booster", "upper")}
-    stage_lump = {stg: lump[f"{stg}_avionics_kg"] + lump[f"{stg}_misc_fraction"] * struct[stg]
-                  for stg in ("booster", "upper")}
+    stage_lump = {stg: cv.lumped_mass(spec, stg, struct[stg]) for stg in ("booster", "upper")}
     stage_cz = {}
     for stg in stage_lump:
         sel = [props[p.name] for p in parts if p.stage == stg and p.kind != "propellant"]
