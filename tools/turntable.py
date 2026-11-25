@@ -34,6 +34,7 @@ def spin(parts, focal, radius, elev, size, frames, out, stem, title, zoom=1.0):
         pl.camera.focal_point = focal
         pl.camera.position = (focal[0] + radius * np.cos(a), focal[1] + radius * np.sin(a), focal[2] + elev)
         pl.camera.up = (0, 0, 1)
+        pl.render()
         pl.screenshot(str(tmp / f"f{k:03d}.png"))
     pl.close()
     mp4, gif = out / f"{stem}.mp4", out / f"{stem}.gif"
